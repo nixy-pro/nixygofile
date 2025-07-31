@@ -1,0 +1,6 @@
+name = "gofile-worker"
+main = "src/index.js"
+compatibility_date = "2025-07-31"
+
+[vars]
+GOFILE_TOKEN = "fkquI3coDZlGCfeQbpvPKUUyWqupchIt"
