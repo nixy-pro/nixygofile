@@ -1,20 +1,20 @@
 export default {
   async fetch(request, env) {
     if (request.method !== "POST") {
-      return new Response("Use POST method", { status: 405 });
+      return new Response("Gunakan POST method", { status: 405 });
     }
 
     const formData = await request.formData();
     const file = formData.get("file");
+
     if (!file) {
-      return new Response("No file uploaded", { status: 400 });
+      return new Response("File tidak ditemukan", { status: 400 });
     }
 
-    const filename = file.name || "upload.bin";
     const uploadForm = new FormData();
-    uploadForm.append("file", file, filename);
+    uploadForm.append("file", file, file.name || "upload.bin");
 
-    const gofileRes = await fetch("https://store1.gofile.io/uploadFile", {
+    const response = await fetch("https://store1.gofile.io/uploadFile", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${env.GOFILE_TOKEN}`,
@@ -22,17 +22,14 @@ export default {
       body: uploadForm,
     });
 
-    const result = await gofileRes.json();
+    const result = await response.json();
 
-    if (result.status === "ok") {
-      return new Response(JSON.stringify(result.data), {
-        headers: { "Content-Type": "application/json" },
-      });
-    } else {
-      return new Response(JSON.stringify({ error: result.error }), {
-        headers: { "Content-Type": "application/json" },
-        status: 500,
-      });
+    if (!result.status || result.status !== "ok") {
+      return new Response("Gagal upload ke GoFile", { status: 500 });
     }
+
+    return new Response(JSON.stringify(result.data), {
+      headers: { "Content-Type": "application/json" },
+    });
   },
 };
